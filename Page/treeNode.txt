@@ -1,0 +1,18 @@
+[{
+    text:'高三级',
+    expanded: true,
+    leaf: false,
+    children: [
+        {
+            text: '高三一班', leaf: false, expanded: true, children: [
+                { text: '张三', leaf: true },
+                { text: '李四', leaf: true }
+            ]
+        },
+        {
+            text: '高三二班', leaf: false, children: [
+                { text: '王五', leaf: true },
+            ]
+        }
+    ]
+}]

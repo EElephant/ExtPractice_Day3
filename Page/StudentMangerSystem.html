@@ -1,0 +1,121 @@
+<!DOCTYPE html
+    PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <title>StudentManagerSystem</title>
+    <meta charset="UTF-8" />
+    <!--ExtJs框架开始-->
+    <script type="text/javascript" src="../ext-3.3.0/adapter/ext/ext-base.js"></script>
+    <script type="text/javascript" src="../ext-3.3.0/ext-all.js"></script>
+    <link rel="stylesheet" type="text/css" href="../ext-3.3.0/resources/css/ext-all.css" />
+    <!--ExtJs框架结束-->
+    <script type="text/javascript">
+        Ext.onReady(function () {
+
+            var addNodeText;
+
+            var menu = new Ext.menu.Menu({
+                items: [{
+                    id: 'addNode',
+                    text: 'Add Node'
+                }],
+                listeners: {
+                    itemclick: function (item) {
+                        switch (item.id) {
+                            case 'addNode':
+                                Ext.Msg.prompt("学生管理系统", "请输入你的姓名：", function (btn, text) {
+                                    if (btn == 'ok') {
+                                        addNodeText = text;
+                                        insertNode(item.parentMenu.contextNode, addNodeText);
+                                    }
+                                });
+                                break;
+                        }
+                    }
+                }
+            });
+
+            var inputBox = new Ext.form.TextField({
+                fieldLabel: 'inputBox',
+                width: 200,
+                height: 20,
+                renderTo: 'input'
+            });
+
+            var tree = new Ext.tree.TreePanel({
+                renderTo: 'tree',
+                enableDD: true,
+                contextMenu: menu,
+                loader: new Ext.tree.TreeLoader({ dataUrl: './treeNode.txt' }),
+                root: new Ext.tree.AsyncTreeNode({ text: 'PN二中', expanded: true }),
+                listeners: {
+                    'click': function (node, e) {
+                        addNodeText = node;
+                    },
+                    contextmenu: function (node, e) {
+                        node.select();
+                        var c = node.getOwnerTree().contextMenu;
+                        c.contextNode = node;
+                        c.showAt(e.getXY());
+                    }
+                }
+            });
+
+            var treeEditor = new Ext.tree.TreeEditor(tree, { allowBlank: false }, {
+                listeners: {
+                    complete: function (editor, currVal, origVal) {
+                        Ext.Msg.alert('提醒','学生/班级的名字已从<h3>' + origVal + '</h3>修改为<h3>' + currVal + '</h3>');
+                        
+                    }
+                }
+            });
+
+            function insertNode(node, nodeText) {
+                if (node.leaf == true)
+                    node.parentNode.appendChild(new Ext.tree.TreeNode({ text: nodeText, leaf: true }))
+                else {
+                    var newNode = new Ext.tree.TreeNode({
+                        text: nodeText,
+                    })
+                    if (node.parentNode.text == 'PN二中') {
+                        newNode.appendChild(new Ext.tree.TreeNode({
+                            text: nodeText + "班级的班级名单如下：",
+                            leaf: false
+                        }))
+                    } else {
+                        newNode.appendChild(new Ext.tree.TreeNode({
+                            text: nodeText + "班级的学生名单如下：",
+                            leaf: true
+                        }))
+                    }
+                    node.parentNode.appendChild(newNode)
+                }
+            }
+
+            Ext.get('addBtn').on('click', function () {
+                if (addNodeText !== undefined) {
+                    var text = Ext.get('input').getValue();
+                    if (text === '') {
+                        Ext.Msg.alert('提醒', '请输入学生姓名或者班级名称');
+                    }
+                    else {
+                        insertNode(addNodeText, Ext.get('input').getValue());
+                    }
+                }
+                else {
+                    Ext.Msg.alert('提醒', '请选择要加入的班级');
+                }
+                Ext.get('input').dom.value = '';
+            })
+        })
+    </script>
+</head>
+
+<body>
+    <div id="tree"></div>
+    <input id="input" />
+    <button id='addBtn'>Add</button>
+</body>
+
+</html>
